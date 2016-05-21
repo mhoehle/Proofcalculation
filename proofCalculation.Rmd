@@ -45,8 +45,8 @@ library("R.utils")
 reassignInPackage("Sub.pair","CARE1",my_Sub.pair)
 ```
 
-<br><p>
-<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a> license.
 The markdown+Rknitr source code of this note is available from [![github](figs/GitHub-Mark-32px.png)](https://github.com/hoehleatsu/Proofcalculation) .
 
 ## Abstract
@@ -155,17 +155,17 @@ We shall now describe an estimation approach a decision theoretic approach for t
 Consider the situation where a team of two statisticians together validate the same report. Say the team use a fixed amount of time (e.g. one day)
 trying to find as many errors in the numbers as possible. During the test period no errors are fixed -- this happens only after the end of the period. Let's assume that
  during the test period the two statistician found $n_1$ and $n_2$ wrong numbers,
-respectively. Let $0 \leq n_{11} \leq \min(n_1,n_2)$ be the number of wrong numbers which were found by both statisticians. 
+respectively. Let $0 \leq n_{12} \leq \min(n_1,n_2)$ be the number of wrong numbers which were found by both statisticians. 
 
-We  summarise the findings in the following alternative representation: Let $f_i, i=1,2$ be the number of wrong numbers found by $i$ of the testers, i.e.
+The data in alternative representation: Denote by $f_i, i=1,2$ the number of wrong numbers found by $i$ of the testers, i.e.
 $$
 \begin{aligned}
-f_1 &=(n_1-n_{11})+(n_2-n_{11})\\
-f_2 &= n_{11}.
+f_1 &=(n_1-n_{12})+(n_2-n_{12})\\
+f_2 &= n_{12}.
 \end{aligned}
 $$
 These are the wrong numbers found by only one of the testers and by both testers, respectively.
-Let $S=f_1+f_2$ be the total number of erroneous numbers found in the test phase. Assuming that we in the subsequent debugging phase
+Let $S=f_1+f_2=n_1+n_2-n_{12}$ be the total number of erroneous numbers found in the test phase. Assuming that we in the subsequent debugging phase
 are able to remove all these $S$ errors, we are interested in estimating the number of remaining errors, i.e. $f_0$ or, alternatively, the total number of errors $M=S+f_0$.
 
 Assume that after the first day of proofcalculation the two statisticians obtain the following results:
@@ -175,8 +175,9 @@ testP <- data.frame(t(c(9,12,6)))
 colnames(testP) <- c("01","10","11")
 testP
 ```
-i.e. $n_1=`r testP[1]`$, $n_2=`r testP[2]`$ and $n_{11}=`r testP[3]`$. 
-Hence, the total number of errors found so far is $S=`r sum(testP)`$.
+i.e. $n_1=`r testP[1]`$, $n_2=`r testP[2]`$  and $n_{12}=`r testP[3]`$. The total number of errors found so far is $S=`r sum(testP)`$. In the above code we use index `01`, `10` and `11` specifying the results in two binary variable bit-notation -- this is necessary for the  `CARE1` package used in the next section.
+
+
 
 ## Estimating the total number of wrong numbers
 
@@ -188,13 +189,13 @@ Under the simple assumption that the two statisticians are equally good at findi
 and that the possible errors  have the same probability to be found (unrealistic?) a simple
 capture-recapture estimate for the total number of errors is the so called [Lincoln-Petersen estimator](https://en.wikipedia.org/wiki/Mark_and_recapture#Lincoln.E2.80.93Petersen_estimator)):
 $$
-\hat{M} = \frac{n_1 \cdot n_2}{n_{11}}.
+\hat{M} = \frac{n_1 \cdot n_2}{n_{12}}.
 $$
 Note that this estimator puts no upper-bound on $N$. The estimator can be computed using, e.g., the [`CARE1`](https://cran.r-project.org/web/packages/CARE1/index.html) package:
 ```{r}
 (M.hat <- CARE1::estN.pair(testP))
 ```
-In other words, the estimated total number of errors is `r M.hat["Petersen"]`. The 95% confidence interval (CI) for $M$ is `r sprintf("(%.0f,%.0f)",M.hat["cil"],M.hat["ciu"])` -- see the package documentation for details on the method for computing the (CI). To verify the computations one could alternatively compute the Lincoln-Petersen estimator manually:
+In other words, the estimated total number of errors is `r M.hat["Petersen"]`. A 95% confidence interval (CI) for $M$ is `r sprintf("%.0f-%.0f",M.hat["cil"],M.hat["ciu"])` -- see the package documentation for details on the method for computing the (CI). To verify the computations one could alternatively compute the Lincoln-Petersen estimator manually:
 
 ```{r}
 (Nhat <- (testP["01"]+testP["11"]) * (testP["10"]+testP["11"]) / testP["11"])
@@ -209,8 +210,8 @@ $$
 \hat{M} = S + \frac{f_1^2}{2 f_2}.
 $$
 
-The method is based on the assumption that the two statisticians are equally good at spotting errors, however, errors have heterogeneous probabilities to be detected. No specific parametric model for the detection is although required. An R implementation of the estimator is readily available as part of the [`SPECIES`](https://cran.r-project.org/web/packages/SPECIES/index.html) package.
-For this, data first need to be stored as a table containing $f_1, f_2$:
+The above estimator is based on the assumption that the two statisticians are equally good at spotting errors, but unlike for the Petersen-Lincoln estimator, errors can have heterogeneous detection probabilities. No specific parametric model for the detection is although required. An R implementation of the estimator is readily available as part of the [`SPECIES`](https://cran.r-project.org/web/packages/SPECIES/index.html) package.
+For this, data first need to be stored as a `data.frame` containing $f_1, f_2$:
 ```{r}
 testPaggr <- data.frame(j=1:2,f_j=as.numeric(c(sum(testP[1:2]),testP[3])))
 testPaggr
@@ -230,7 +231,7 @@ In this case the estimator for the total number of errors is $\hat{M}=`r M_est$N
 # Knowing when to Stop
 
 Whereas the above estimates are nice to know, they give little guidance on how, after the first day of testing, to decide between the following two alternatives: continue validating numbers for another day or stop
-the testing process and ship the report. We address this sequential decision making problem by casting it into a decision theoretic framework. Following the work of Ferguson and Hardwick (1989): let's assume that each futher round of proofcalculation costs an amount of $C_p>0$ units and that each error undetected after additional $n$ rounds of proofcalculation costs $c_n>0$ units. Treating the total number of wrong results  $M$ as a random variable and letting $X_1,\ldots,X_n$, be the number of wrong results found in each of the additional proofcalculation rounds $1,\ldots,n$, we know that $X_i\in \mathbb{N}_0$ and $\sum_{j=1}^n X_j \leq N$. One then formulates the conditional expected loss after $n, n=0, 1, 2, \ldots,$ rounds of proofcalculation as:
+the testing process and ship the report. We address this sequential decision making problem by casting it into a decision theoretic framework. Following the work of Ferguson and Hardwick (1989): let's assume that each futher round of proofcalculation costs an amount of $C_p>0$ units and that each error undetected after additional $n$ rounds of proofcalculation costs $c_n>0$ units. Treating the total number of wrong results  $M$ as a random variable and letting $X_1,\ldots,X_n$, be the number of wrong results found in each of the additional proofcalculation rounds $1,\ldots,n$, we know that $X_i\in \mathbb{N}_0$ and $\sum_{j=1}^n X_j \leq N$. One then formulates the conditional expected loss after $n, n=0, 1, 2, \ldots,$ additional rounds of proofcalculation:
 $$
 Y_n = n C_p + c_n E(M_n|X_1,\ldots,X_n),
 $$
@@ -248,8 +249,8 @@ $$
 n_{\text{stop}} = \min_{n\geq 0} Y_n.
 $$
 
-One limitation of the above is that we have used a guesstimate on how  the detectionprobability $p_n$ evolves over time. An improvement would be to sequentially estimate this parameter from the obtained results.
-This goes along the lines of the work by Dalal and Mallows (1988) on when to stop testing your software described in the following [note](https://htmlpreview.github.io/?https://github.com/hoehleatsu/When2Stop/blob/master/when2stop.html).
+One limitation of the above approach is that we have used a **guesstimate** on how  the detection probability $p_n$ evolves over time. An extension would be to sequentially estimate this parameter from the obtained results.
+This goes along the lines of Dalal and Mallows (1988) which discuss when to stop testing your software -- see the following [note](https://htmlpreview.github.io/?https://github.com/hoehleatsu/When2Stop/blob/master/when2stop.html) for a short statistical treatment of their approach.
 
 ### Numerical example
 
@@ -296,7 +297,7 @@ The optimal strategy is thus found as:
 ```{r}
 df %>% filter(rank(Yn) == 1) %>% select(n,Yn)
 ```
-In other words, one should test for $n_{\text{stop}}=`r df %>% filter(rank(Yn) == 1) %>% select(n)`$ rounds.
+In other words, one should test after $n_{\text{stop}}=`r df %>% filter(rank(Yn) == 1) %>% select(n)`$ additional rounds.
 
 
 # Discussion
