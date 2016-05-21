@@ -245,8 +245,6 @@ $$
 n_{\text{stop}} = \min_{n\geq 0} Y_n.
 $$
 
-One the limitation of the above is that we have used a guesstimate on how  the detectionprobability $p_n$ evolves over time. An improvement would be to sequentially estimate this parameter from the obtained results.
-
 ### Numerical example
 
 We consider a setup where the costly errors have substantial ramifications and thus
@@ -294,6 +292,9 @@ df %>% filter(rank(Yn) == 1) %>% select(n,Yn)
 ```
 In other words, one should test for $n_{\text{stop}}=`r df %>% filter(rank(Yn) == 1) %>% select(n)`$ rounds.
 
+One the limitation of the above is that we have used a guesstimate on how  the detectionprobability $p_n$ evolves over time. An improvement would be to sequentially estimate this parameter from the obtained results.
+This goes along the lines of the work by Dalal and Mallows (1988) on when to stop testing your software described in the following [note](https://htmlpreview.github.io/?https://github.com/hoehleatsu/When2Stop/blob/master/when2stop.html).
+
 # Discussion
 
 Is any of the above **useful**? 
@@ -307,6 +308,8 @@ Well, I have not heard about such approaches being used seriously in software en
 * Bolton, M (2010). [Another Silly Quantitative Model](http://www.developsense.com/blog/2010/07/another-silly-quantitative-model/), Blog post, July 2010.
 
 * Cook, JD (2010). [How many errors are left to find?](http://www.johndcook.com/blog/2010/07/13/lincoln-index/), Blog post, July 2010.
+
+* Dalal, S. R. and C. L. Mallows. “[When Should One Stop Testing Software?](http://www.jstor.org/stable/2289319)”. Journal of the American Statistical Association (1988), 83(403):872–879.
 
 * Ferguson, TS and Hardwick JP (1989). [Stopping Rules For Proofreading](http://www.jstor.org/stable/3214037), J. Appl. Prob. 26:304-313.
 

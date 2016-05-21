@@ -241,7 +241,6 @@ Y_n = n C_p + c_n \lambda \prod_{j=0}^{n-1} (1-p_j), \quad n=0,1,2,\ldots.
 \]</span> The above Poisson assumption seems to be an acceptable approximation if the total number of results <span class="math inline">\(M\)</span> is large and the probability of a result being wrong is low. In this case the optimal stopping rule is given by: <span class="math display">\[
 n_{\text{stop}} = \min_{n\geq 0} Y_n.
 \]</span></p>
-<p>One the limitation of the above is that we have used a guesstimate on how the detectionprobability <span class="math inline">\(p_n\)</span> evolves over time. An improvement would be to sequentially estimate this parameter from the obtained results.</p>
 <div id="numerical-example" class="section level3">
 <h3>Numerical example</h3>
 <p>We consider a setup where the costly errors have substantial ramifications and thus are easy to detect early on. As time passes on the errors become more difficult to detect. This is reflected by the subsequent choices of <span class="math inline">\(p_n\)</span> and <span class="math inline">\(c_n\)</span> – see below. Furthermore, the expected number of bugs is taken to be the non-homogeneous capture-recapture estimate of the remaining errors. This coupling of the two procedures is somewhat pragmatic: it does not include the first round of proofcalculation in the decision making as this is used to estimate <span class="math inline">\(\lambda\)</span>. Furthermore, no estimation uncertainty in <span class="math inline">\(\lambda\)</span> from this stage is transferred to the subsequent stages.</p>
@@ -270,6 +269,7 @@ df &lt;- data.frame(n=1:20) %&gt;% mutate(Yn=Yn(n),cn=cn(n),pn=pj(n-1))</code></
 <pre><code>##   n       Yn
 ## 1 5 6.457426</code></pre>
 <p>In other words, one should test for <span class="math inline">\(n_{\text{stop}}=5\)</span> rounds.</p>
+<p>One the limitation of the above is that we have used a guesstimate on how the detectionprobability <span class="math inline">\(p_n\)</span> evolves over time. An improvement would be to sequentially estimate this parameter from the obtained results. This goes along the lines of the work by Dalal and Mallows (1988) on when to stop testing your software described in the following <a href="https://htmlpreview.github.io/?https://github.com/hoehleatsu/When2Stop/blob/master/when2stop.html">note</a>.</p>
 </div>
 </div>
 <div id="discussion" class="section level1">
@@ -285,6 +285,7 @@ df &lt;- data.frame(n=1:20) %&gt;% mutate(Yn=Yn(n),cn=cn(n),pn=pj(n-1))</code></
 <ul>
 <li><p>Bolton, M (2010). <a href="http://www.developsense.com/blog/2010/07/another-silly-quantitative-model/">Another Silly Quantitative Model</a>, Blog post, July 2010.</p></li>
 <li><p>Cook, JD (2010). <a href="http://www.johndcook.com/blog/2010/07/13/lincoln-index/">How many errors are left to find?</a>, Blog post, July 2010.</p></li>
+<li><p>Dalal, S. R. and C. L. Mallows. “<a href="http://www.jstor.org/stable/2289319">When Should One Stop Testing Software?</a>”. Journal of the American Statistical Association (1988), 83(403):872–879.</p></li>
 <li><p>Ferguson, TS and Hardwick JP (1989). <a href="http://www.jstor.org/stable/3214037">Stopping Rules For Proofreading</a>, J. Appl. Prob. 26:304-313.</p></li>
 <li><p>Hayes, B (2010). <a href="http://bit-player.org/2010/the-thrill-of-the-chase">The thrill of the chase</a>, Blog post, July 2010.</p></li>
 <li><p>Singpurwalla ND, Wilson SP (1999). <a href="http://www.springer.com/us/book/9780387988238">Statistical Methods in Software Engineering</a>, Springer.</p></li>
